@@ -1,0 +1,366 @@
+[
+    {
+        "id": "5a07e27718038240",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "a281163f1939d055",
+        "type": "telegram bot",
+        "botname": "testTask_GPT_bot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "testenvironment": false,
+        "updatemode": "polling",
+        "addressfamily": "",
+        "pollinterval": "300",
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": "6667",
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbotport": "8443",
+        "publicbotport": "8443",
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "0130330bfa9a21cf",
+        "type": "telegram receiver",
+        "z": "5a07e27718038240",
+        "name": "",
+        "bot": "a281163f1939d055",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 90,
+        "y": 280,
+        "wires": [
+            [
+                "5c4d77e07f3b1735",
+                "ef992d707262673c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "5c4d77e07f3b1735",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 150,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ef992d707262673c",
+        "type": "function",
+        "z": "5a07e27718038240",
+        "name": "GPT Req",
+        "func": "msg.fromApp = msg.payload;\nif(msg.payload.content==\"/start\"){\n    msg.payload.content = \"Даний бот відповідатиме як давньогрецький Філософ Сократ, а картини малюватиме у Українському стилі.\";\n\n    return[msg,null]\n}else{\nmsg.method = \"POST\"\nmsg.url = 'https://api.openai.com/v1/chat/completions';\nmsg.headers = {\n    'Content-Type': 'application/json',  \n    'Authorization': 'Bearer key',\n\n\n};\nmsg.payload = {\n    \"model\": \"gpt-3.5-turbo-16k\",\n    \"temperature\": 0.2,\n    \"messages\": [\n   \n        {\n            \"role\": \"system\", \"content\": `Ти давньогрецький філософ Сократ, який ділиться своєю мудрістю з наступними поколіннями. Будь ласка формулюй відповіді, так як б їх сформулював Сократ.`\n        },\n        {\n            \"role\": \"user\", \"content\": msg.fromApp.content\n        }\n    ]\n}\n\n\n\n\nreturn [msg,null];\n}\n\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 280,
+        "wires": [
+            [
+                "0b523031bd6bfe59",
+                "1a1dea596ed9711f",
+                "f14dfb1c8dc7e60e"
+            ]
+        ]
+    },
+    {
+        "id": "0b523031bd6bfe59",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "GPT Req",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "1a1dea596ed9711f",
+        "type": "http request",
+        "z": "5a07e27718038240",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 550,
+        "y": 280,
+        "wires": [
+            [
+                "4f1a503babb9e59d",
+                "f2c8f160dfdc63f5"
+            ]
+        ]
+    },
+    {
+        "id": "4f1a503babb9e59d",
+        "type": "function",
+        "z": "5a07e27718038240",
+        "name": "Check responce",
+        "func": "if(msg.statusCode==200){\n    msg.answer = msg.payload.choices[0].message.content\n    msg.payload = {\n        content: msg.answer,\n        type: \"message\",\n        chatId: msg.fromApp.chatId,\n    }\nreturn [msg,null];\n}\nelse{\n    msg.payload = {\n        content:JSON.stringify(msg.payload),      \n        type: \"message\",\n        chatId: msg.fromApp.chatId,\n    }\n   \n    return[null,msg]\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 280,
+        "wires": [
+            [
+                "c875bb61f1ac3db1",
+                "52eb0df89b0ab93d",
+                "da8f1149f2556ac7"
+            ]
+        ]
+    },
+    {
+        "id": "f2c8f160dfdc63f5",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "c875bb61f1ac3db1",
+        "type": "function",
+        "z": "5a07e27718038240",
+        "name": "DALLE  Req",
+        "func": "msg.fromApp = msg.payload;\nmsg.method = \"POST\"\nmsg.url = 'https://api.openai.com/v1/images/generations';\nmsg.headers = {\n    'Content-Type': 'application/json',  \n    'Authorization': 'Bearer key'\n\n\n};\nmsg.payload = {\n    \"model\": \"dall-e-2\",\n    \"prompt\":\"Згенеруй зображення, що міститиме в собі відповідь на питання \"+msg.fromApp.content+\" .Зображення має бути в українській стилістиці часів Тараса Шевченка та мати в собі давньогрецького філософа Сократа. \",\n    \"size\":\"512x512\",\n    \"quality\":\"standard\",\n    \"n\":1,\n}\n\nreturn [msg,null];\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1010,
+        "y": 280,
+        "wires": [
+            [
+                "fc1ec0340a037957",
+                "5e1e724cd323e162"
+            ]
+        ]
+    },
+    {
+        "id": "52eb0df89b0ab93d",
+        "type": "telegram sender",
+        "z": "5a07e27718038240",
+        "name": "send Result",
+        "bot": "a281163f1939d055",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 930,
+        "y": 140,
+        "wires": [
+            []
+        ],
+        "info": "[msg]"
+    },
+    {
+        "id": "fc1ec0340a037957",
+        "type": "http request",
+        "z": "5a07e27718038240",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1230,
+        "y": 280,
+        "wires": [
+            [
+                "4a8bc28e3b31205b",
+                "20a52cd3226fdf22"
+            ]
+        ]
+    },
+    {
+        "id": "5e1e724cd323e162",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "4a8bc28e3b31205b",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1300,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "2965c06f4f2f6339",
+        "type": "telegram sender",
+        "z": "5a07e27718038240",
+        "name": "",
+        "bot": "a281163f1939d055",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 1690,
+        "y": 280,
+        "wires": [
+            []
+        ],
+        "info": "[msg]"
+    },
+    {
+        "id": "20a52cd3226fdf22",
+        "type": "function",
+        "z": "5a07e27718038240",
+        "name": "Check response",
+        "func": "if(msg.statusCode==200){\n    msg.payload.content = msg.payload.data[0].url,\n    msg.payload.type = \"message\",\n    msg.payload.chatId = msg.fromApp.chatId\n    \n}\nelse{\n    msg.payload = {\n        content:JSON.stringify(msg.payload),      \n        type: \"message\",\n        chatId: msg.fromApp.chatId,\n    }\n}\nreturn [msg,null];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1440,
+        "y": 280,
+        "wires": [
+            [
+                "2965c06f4f2f6339",
+                "ff90c7a30d0c12bf",
+                "ca80f7811a9bd0d6"
+            ]
+        ]
+    },
+    {
+        "id": "ff90c7a30d0c12bf",
+        "type": "debug",
+        "z": "5a07e27718038240",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1480,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "f14dfb1c8dc7e60e",
+        "type": "telegram sender",
+        "z": "5a07e27718038240",
+        "name": "send Intro",
+        "bot": "a281163f1939d055",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 460,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "da8f1149f2556ac7",
+        "type": "telegram sender",
+        "z": "5a07e27718038240",
+        "name": "send Error messadge",
+        "bot": "a281163f1939d055",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 910,
+        "y": 400,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "ca80f7811a9bd0d6",
+        "type": "telegram sender",
+        "z": "5a07e27718038240",
+        "name": "send Error messadge",
+        "bot": "a281163f1939d055",
+        "haserroroutput": true,
+        "outputs": 2,
+        "x": 1560,
+        "y": 400,
+        "wires": [
+            [],
+            []
+        ]
+    }
+]
